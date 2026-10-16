@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GPT-6 Intelligent UI｜互動式摘要</title>
+<style>
+:root{
+  --bg:#f4f0ec;
+  --paper:#fffdfb;
+  --ink:#3b3430;
+  --muted:#756a63;
+  --line:#e5dbd4;
+  --rose:#b7747c;
+  --rose-soft:#f4e7e5;
+  --sage:#879785;
+  --sage-soft:#edf1eb;
+  --taupe:#9b8d84;
+  --taupe-soft:#f2eeea;
+  --lav:#9d8fa0;
+  --lav-soft:#f0ebf2;
+  --bluegray:#8795a0;
+  --bluegray-soft:#edf1f3;
+  --shadow:0 14px 42px rgba(75,60,52,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(183,116,124,.08), transparent 28%),
+    radial-gradient(circle at 90% 12%, rgba(135,151,133,.08), transparent 26%),
+    var(--bg);
+  color:var(--ink);
+}
+.wrap{max-width:1100px;margin:0 auto;padding:34px 20px 64px}
+.hero{
+  background:rgba(255,253,251,.94);
+  border:1px solid var(--line);
+  border-radius:30px;
+  padding:34px;
+  box-shadow:var(--shadow);
+}
+.kicker{font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--rose)}
+h1{font-size:42px;line-height:1.15;margin:10px 0 12px}
+.lead{font-size:18px;line-height:1.75;color:var(--muted);max-width:860px}
+.nav{
+  display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;padding:8px;
+  background:var(--taupe-soft);border-radius:18px;
+}
+.nav button{
+  flex:1;min-width:150px;border:0;background:transparent;color:var(--ink);
+  padding:13px 16px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;
+  transition:.2s;
+}
+.nav button.active{background:var(--paper);box-shadow:0 4px 14px rgba(70,55,47,.08);color:var(--rose)}
+.section{display:none;margin-top:22px}
+.section.active{display:block}
+.section-title{display:flex;align-items:center;gap:10px;margin:4px 0 14px}
+.section-title h2{font-size:22px;margin:0}
+.pill{
+  display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;
+  background:var(--rose-soft);color:var(--rose);font-size:13px;font-weight:800;
+}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{
+  background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:18px;
+  box-shadow:0 5px 16px rgba(72,58,49,.04)
+}
+.card .emoji{font-size:28px}
+.card h3{margin:10px 0 7px;font-size:18px}
+.card p{margin:0;color:var(--muted);font-size:14px;line-height:1.65}
+.flow{
+  display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:12px;align-items:center;margin-top:16px
+}
+.step{
+  background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px;text-align:center;font-weight:700
+}
+.arrow{color:var(--rose);font-size:25px;text-align:center}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.comparebox{background:var(--paper);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.comparebox .head{padding:14px 16px;font-weight:800}
+.comparebox.old .head{background:#d9d3cf}
+.comparebox.new .head{background:var(--rose);color:#fff}
+.comparebox .row{padding:14px 16px;border-top:1px solid var(--line);line-height:1.55}
+.scenarios{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.scenario{
+  border:1px solid var(--line);border-radius:18px;padding:18px;cursor:pointer;transition:.18s;
+  background:var(--paper)
+}
+.scenario:hover{transform:translateY(-2px)}
+.scenario.active{outline:2px solid var(--rose);outline-offset:2px}
+.scenario.work{background:var(--bluegray-soft)}
+.scenario.learn{background:var(--sage-soft)}
+.scenario.life{background:#f7ece7}
+.scenario.decide{background:var(--lav-soft)}
+.scenario b{font-size:17px}
+.scenario small{display:block;margin-top:5px;color:var(--muted)}
+.dynamic{
+  margin-top:14px;background:var(--paper);border:1px solid var(--line);
+  border-radius:22px;padding:22px;min-height:180px
+}
+.dynamic h3{margin:0 0 8px;font-size:22px}
+.dynamic p{margin:0;color:var(--muted);line-height:1.75}
+.dynamic ul{margin:12px 0 0 20px;line-height:1.75}
+.dynamic .mini{
+  margin-top:16px;padding:14px 16px;border-radius:14px;background:#faf6f3;border:1px solid #ecddd8
+}
+.controls{
+  margin-top:24px;background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:20px
+}
+.controls-top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.controls label{font-weight:800}
+.state{font-size:13px;color:var(--muted)}
+input[type=range]{width:100%;margin:16px 0 4px;accent-color:var(--rose)}
+.depth-scale{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.summary{
+  margin-top:16px;padding:18px;border-radius:16px;background:#fff8f6;border:1px solid #ecd7d3;line-height:1.8
+}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tag{padding:7px 10px;border-radius:999px;background:var(--taupe-soft);border:1px solid var(--line);font-size:13px}
+.fullgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.note{
+  margin-top:16px;padding:16px;border-radius:16px;background:var(--sage-soft);border:1px solid #dce4da;color:#566454;line-height:1.7
+}
+@media(max-width:850px){
+  .grid,.scenarios{grid-template-columns:1fr 1fr}
+  .flow{grid-template-columns:1fr;}.arrow{transform:rotate(90deg)}
+  .compare,.fullgrid{grid-template-columns:1fr}
+  h1{font-size:34px}
+}
+@media(max-width:520px){
+  .grid,.scenarios{grid-template-columns:1fr}
+  .hero{padding:24px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <main class="hero">
+    <div class="kicker">GPT-6 · INTELLIGENT UI</div>
+    <h1>互動式摘要：智慧介面是什麼？</h1>
+    <div class="lead">這一版把「分頁、情境、摘要深度」真的串在一起。你切換主題、點選情境、拖動深度，下面的內容都會跟著變。</div>
+
+    <nav class="nav">
+      <button class="tab active" data-tab="quick">30 秒看懂</button>
+      <button class="tab" data-tab="compare">跟以前差在哪</button>
+      <button class="tab" data-tab="use">實際能做什麼</button>
+      <button class="tab" data-tab="full">完整結構</button>
+    </nav>
+
+    <section id="quick" class="section active">
+      <div class="section-title"><span class="pill">快速理解</span><h2>四個核心變化</h2></div>
+      <div class="grid">
+        <div class="card"><div class="emoji">🧩</div><h3>結構化</h3><p>把長內容拆成容易掃視的區塊。</p></div>
+        <div class="card"><div class="emoji">👆</div><h3>可互動</h3><p>不是只讀，還能點、切換、展開與調整。</p></div>
+        <div class="card"><div class="emoji">🎯</div><h3>依問題換形式</h3><p>比較題、流程題、試算題，用不同介面回答。</p></div>
+        <div class="card"><div class="emoji">🌿</div><h3>不亂塞 UI</h3><p>一句話最好懂時，就不必硬長出一台控制台。</p></div>
+      </div>
+      <div class="flow">
+        <div class="step">你提問</div><div class="arrow">→</div>
+        <div class="step">GPT 判斷最適合的形式</div><div class="arrow">→</div>
+        <div class="step">文字／圖表／卡片／互動介面</div>
+      </div>
+    </section>
+
+    <section id="compare" class="section">
+      <div class="section-title"><span class="pill">Before / After</span><h2>回答方式的轉變</h2></div>
+      <div class="compare">
+        <div class="comparebox old">
+          <div class="head">以前</div>
+          <div class="row">📄 以長篇文字為主</div>
+          <div class="row">🧠 你自己抓重點、重新整理</div>
+          <div class="row">📊 需要另外開 Excel、表格或其他工具</div>
+        </div>
+        <div class="comparebox new">
+          <div class="head">現在（Intelligent UI）</div>
+          <div class="row">🗂️ 可直接看到卡片、圖表、流程</div>
+          <div class="row">👆 能點選、切換、展開與調整</div>
+          <div class="row">🪄 回答本身就能長成一個迷你工具</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="use" class="section">
+      <div class="section-title"><span class="pill">情境切換</span><h2>你想拿它做什麼？</h2></div>
+      <div class="scenarios">
+        <div class="scenario work active" data-case="work"><b>💼 工作</b><small>會議、規格、專案</small></div>
+        <div class="scenario learn" data-case="learn"><b>📚 學習</b><small>語言、概念、測驗</small></div>
+        <div class="scenario life" data-case="life"><b>🏠 生活</b><small>旅遊、預算、分帳</small></div>
+        <div class="scenario decide" data-case="decide"><b>💡 決策</b><small>比較、條件、排序</small></div>
+      </div>
+      <div id="scenarioDetail" class="dynamic"></div>
+    </section>
+
+    <section id="full" class="section">
+      <div class="section-title"><span class="pill">完整架構</span><h2>一份智慧介面摘要可以怎麼組成</h2></div>
+      <div class="fullgrid">
+        <div class="card"><h3>① 一句話結論</h3><p>先回答最重要的問題，讓人先站穩。</p></div>
+        <div class="card"><h3>② 重點卡片</h3><p>把核心概念拆成容易掃視的小單位。</p></div>
+        <div class="card"><h3>③ 比較／流程</h3><p>有差異就比較，有先後順序就畫流程。</p></div>
+        <div class="card"><h3>④ 情境選擇器</h3><p>依工作、學習、生活等目的換案例。</p></div>
+        <div class="card"><h3>⑤ 摘要深度</h3><p>同一份內容可從一句話一路展開到完整說明。</p></div>
+        <div class="card"><h3>⑥ 行動入口</h3><p>下一步直接變成按鈕、試算、篩選或練習。</p></div>
+      </div>
+      <div class="note">真正的重點不是「畫面變漂亮」，而是閱讀路徑也能跟著你的目的改變。</div>
+    </section>
+
+    <section class="controls">
+      <div class="controls-top">
+        <label>摘要深度：<span id="depthName">一般版</span></label>
+        <div id="state" class="state">目前視角：30 秒看懂</div>
+      </div>
+      <input id="depth" type="range" min="0" max="2" step="1" value="1" />
+      <div class="depth-scale"><span>超短</span><span>一般</span><span>深入</span></div>
+      <div id="summary" class="summary"></div>
+      <div id="tags" class="tags"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+const state = {
+  tab: 'quick',
+  scenario: 'work',
+  depth: 1
+};
+
+const tabNames = {
+  quick:'30 秒看懂',
+  compare:'跟以前差在哪',
+  use:'實際能做什麼',
+  full:'完整結構'
+};
+
+const depthNames = ['超短版','一般版','深入版'];
+
+const scenarioData = {
+  work:{
+    title:'💼 工作',
+    short:'會議摘要、規格比較、專案流程。',
+    medium:'把工作內容拆成「決議、待辦、各方立場、規格差異」等可切換區塊，減少自己重新整理的時間。',
+    deep:'例如一場三方會議，智慧介面可以把內容拆成：① 本次決議 ② 各公司立場 ③ 待辦事項 ④ 時程風險。你點哪一塊，就只展開那一塊；若是規格比較，則可以直接切換亮度、介面、認證、成本等條件。',
+    bullets:['會議紀錄切成可展開區塊','規格比較做成條件切換','專案時程做成流程或狀態卡']
+  },
+  learn:{
+    title:'📚 學習',
+    short:'語言練習、概念整理、小測驗。',
+    medium:'把知識拆成重點、概念比較與互動題目，從「閱讀」變成「讀完就能練」。',
+    deep:'例如 BJT 商務日語，可以先看敬語概念，再切到情境題，選答案後立刻顯示解析。學習摘要也能依深度切換成一句話、重點卡、完整脈絡。',
+    bullets:['概念比較卡','選擇題／情境題','同一份內容切換不同深度']
+  },
+  life:{
+    title:'🏠 生活',
+    short:'旅遊、預算、分帳、排程。',
+    medium:'把生活規劃變成可調整的條件介面，例如天數、預算、同行人數，改條件後重新整理結果。',
+    deep:'例如旅遊規劃可以用滑桿調整預算與天數，再依「步行少、親子、長者」等條件篩選行程。分帳則可以直接依人數與品項重新計算。',
+    bullets:['預算與天數滑桿','條件篩選','分帳與即時計算']
+  },
+  decide:{
+    title:'💡 決策',
+    short:'比較選項、篩條件、排優先級。',
+    medium:'把候選方案依條件整理成比較卡，再根據你在意的權重調整排序。',
+    deep:'例如挑筆電時，可把價格、重量、螢幕、續航拆成條件，切換「通勤優先」或「效能優先」後重新排序。不是單純丟一張表，而是把決策本身做成工具。',
+    bullets:['候選方案比較','條件與權重切換','優先順序重新排序']
+  }
+};
+
+const summaries = {
+  quick:[
+    'GPT-6 Intelligent UI = 把回答做成更直觀、可互動的形式。',
+    'GPT-6 Intelligent UI 的核心，是讓回答從純文字進化成依問題自動選擇形式的介面，例如卡片、圖表、流程與互動元件。',
+    'GPT-6 Intelligent UI 不只是把回答排漂亮，而是先判斷問題屬性，再選擇最適合的呈現方式。若是比較題就用比較卡，流程題就用流程圖，試算題則可能直接變成小工具；如果一句文字最好懂，也不會硬塞 UI。'
+  ],
+  compare:[
+    '以前是「你整理答案」，現在更像「答案先替你整理好」。',
+    '最大的差異，是從「文字輸出」變成「結構化＋可互動」。以前看完還要自己抓重點、開表格；現在回答本身就能承擔比較、切換與整理。',
+    '過去 ChatGPT 主要提供內容，理解與重組往往還是使用者自己完成。Intelligent UI 則把「內容＋呈現＋操作」合在一起，讓回答直接變成卡片、比較表、流程或互動工具，因此少了一層人工整理。'
+  ],
+  full:[
+    '一份好的智慧介面摘要 = 結論＋結構＋互動。',
+    '完整的 Intelligent UI 摘要通常包含：一句話結論、重點卡、比較／流程、情境選擇、摘要深度，以及下一步行動入口。',
+    '如果把它當成一個迷你產品來設計，最理想的結構是：先用一句話回答核心，再提供重點卡；需要理解差異時加入比較，需要理解因果時加入流程；接著讓使用者選情境與深度，最後提供可操作的下一步。'
+  ]
+};
+
+function renderTabs(){
+  document.querySelectorAll('.tab').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.tab===state.tab);
+  });
+  document.querySelectorAll('.section').forEach(sec=>{
+    sec.classList.toggle('active', sec.id===state.tab);
+  });
+}
+
+function renderScenario(){
+  document.querySelectorAll('.scenario').forEach(el=>{
+    el.classList.toggle('active', el.dataset.case===state.scenario);
+  });
+  const d = scenarioData[state.scenario];
+  const detail = document.getElementById('scenarioDetail');
+  const body = state.depth===0 ? d.short : state.depth===1 ? d.medium : d.deep;
+  let html = `<h3>${d.title}</h3><p>${body}</p>`;
+  if(state.depth===2){
+    html += `<ul>${d.bullets.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  }
+  html += `<div class="mini">目前摘要深度：<b>${depthNames[state.depth]}</b></div>`;
+  detail.innerHTML = html;
+}
+
+function renderSummary(){
+  const summary = document.getElementById('summary');
+  const tags = document.getElementById('tags');
+  const stateLabel = document.getElementById('state');
+  document.getElementById('depthName').textContent = depthNames[state.depth];
+
+  if(state.tab==='use'){
+    const d = scenarioData[state.scenario];
+    summary.textContent = state.depth===0 ? d.short : state.depth===1 ? d.medium : d.deep;
+    stateLabel.textContent = `目前視角：${tabNames[state.tab]} · ${d.title.replace(/^[^\s]+\s/,'')}`;
+    tags.innerHTML = d.bullets.map(x=>`<span class="tag">${x}</span>`).join('');
+  }else{
+    summary.textContent = summaries[state.tab][state.depth];
+    stateLabel.textContent = `目前視角：${tabNames[state.tab]}`;
+    const tagMap = {
+      quick:['summary','結構化','互動介面'],
+      compare:['Before / After','比較','整理負擔'],
+      full:['資訊架構','閱讀路徑','互動設計']
+    };
+    tags.innerHTML = tagMap[state.tab].map(x=>`<span class="tag">${x}</span>`).join('');
+  }
+}
+
+function render(){
+  renderTabs();
+  if(state.tab==='use') renderScenario();
+  renderSummary();
+}
+
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    state.tab = btn.dataset.tab;
+    render();
+  });
+});
+
+document.querySelectorAll('.scenario').forEach(el=>{
+  el.addEventListener('click',()=>{
+    state.scenario = el.dataset.case;
+    state.tab = 'use';
+    render();
+  });
+});
+
+document.getElementById('depth').addEventListener('input', e=>{
+  state.depth = Number(e.target.value);
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
